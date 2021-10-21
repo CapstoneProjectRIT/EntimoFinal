@@ -1,24 +1,47 @@
-import logo from './logo.svg';
-import './App.css';
+import Signup from './component/SignUp/SignUp';
+import Login from './component/Login/Login';
 
+import Landing from './component/Landingpage/Landing';
+
+import Homepage from './component/Homepage/Homepage';
+import "./App.css";
+import {Route,BrowserRouter as Router} from 'react-router-dom';
+import {useEffect,useState} from 'react';
+import axios from 'axios';
 function App() {
+  const [auth_status,setAuthStatus]=useState(false);
+  useEffect(()=>{
+
+    const url='http://localhost:5000/api/isuserLoggedIn'
+    
+        axios.get(url,{
+            withCredentials:true
+        }).then(res=>{
+          setAuthStatus(res.data.auth_status);
+        })
+      . catch ((error) => {
+        window.alert("Error");
+        console.log(error);
+    });
+
+  });
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+        <Route exact path="/">
+          <Landing/>
+        </Route>
+        <Route path="/SignUp">
+          <Signup/>
+          </Route>
+        <Route path="/Login">
+          <Login />
+        </Route>
+        <Route path="/Homepage">
+          <Homepage auth_status={auth_status} />
+        </Route>
+    </Router>
+    
+    
   );
 }
 
