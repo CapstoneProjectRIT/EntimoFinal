@@ -204,6 +204,51 @@ async GetAllQuestions(request, response) {
         .json({ msg: "Server currently down please try again later" });
     }
   }
+  async GetEducationTasks(request, response) {
+   
+    try {
+      
+        const data = await questionModule.find({ Topic:'Education' });
+      
+      
+      return response.status(200).json(data);
+        
+    } catch (error) {
+      return response
+        .status(500)
+        .json({ msg: "Server currently down please try again later" });
+    }
+  }
+  async GetWeatherTasks(request, response) {
+   
+    try {
+      
+        const data = await questionModule.find({ Topic: "Weather" });
+      
+      
+      return response.status(200).json(data);
+        
+    } catch (error) {
+      return response
+        .status(500)
+        .json({ msg: "Server currently down please try again later" });
+    }
+  }
+  async GetTrendingTasks(request, response) {
+   
+    try {
+      
+        const data = await questionModule.find({}).sort({upvotes:-1});
+      
+      
+      return response.status(200).json(data);
+        
+    } catch (error) {
+      return response
+        .status(500)
+        .json({ msg: "Server currently down please try again later" });
+    }
+  }
   Like(request, response) {
     const form = new formidable.IncomingForm();
 
@@ -281,8 +326,8 @@ async GetAllQuestions(request, response) {
 
         const { id } = fields;
         console.log(id);
-        
-        return this.id;
+        this.Comment(id);
+        //return this.id;
       });
     }
         catch (error) {
@@ -291,7 +336,7 @@ async GetAllQuestions(request, response) {
         .json({ msg: "Server currently down please try again later" });
     }
   }
-Comment(request,response)
+Comment(request,response,id)
 {
     const form = new formidable.IncomingForm();
 
@@ -324,8 +369,8 @@ Comment(request,response)
         }
       
     console.log(comment);
-    const authController=new AuthController();
-    const id=authController.GetQuestionId();
+    // authController=new AuthController();
+    //const id=.GetQuestionId();
     console.log(id);
         const updatedDoc = await questionModule.findOneAndUpdate(
         {_id:id},

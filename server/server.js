@@ -109,6 +109,15 @@ router.post("/api/likes", (request, response) => {
    router.get('/api/mytasks',(req,res)=>{
     authController.GetMyAllTasks(req,res);
 })
+router.get('/api/educationTask',(req,res)=>{
+    authController.GetEducationTasks(req,res);
+})
+router.get('/api/weatherTask',(req,res)=>{
+    authController.GetWeatherTasks(req,res);
+})
+router.get('/api/trendingTask',(req,res)=>{
+    authController.GetTrendingTasks(req,res);
+})
 router.get('/api/isuserLoggedIn',(req,res)=>{
     authController.isLoggedIn(req,res);
 })
