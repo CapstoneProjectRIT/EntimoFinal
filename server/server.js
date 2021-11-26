@@ -7,7 +7,7 @@ const cors=require('cors');
 const MongoStore =require('connect-mongodb-session')
 const expressSession=require('express-session');
 const dotenv = require('dotenv');
-
+const Comment=require('../server/Models/Comment/Comment');
 const AuthController=require('./Controller/Auth/AuthController.js')
 dotenv.config();
 const questionController=require('./Controller/QuestionController/Questioncontroller');
@@ -78,12 +78,37 @@ router.post('/api/askquestion',(req,res)=>{
 router.get('/api/allQuestion',(request, response)=>{
     authController.GetAllQuestions(request, response);
 })
+router.post('/api/questionID',(request, response)=>{
+    authController.GetQuestionId(request, response);
+})
 router.post("/api/likes", (request, response) => {
     authController.Like(request, response);
   });
   router.post("/api/dislike", (request, response) => {
    authController.Dislike(request, response);
   });
+  router.post("/api/comment", (request, response) => {
+      authController.Comment(request,response);
+    // const comment = new Comment(request.body) 
+
+    // comment.save((err, comment ) => {
+    //     if(err) return res.json({ success:false, err})
+
+    //     Comment.find({ '_id': comment._id })
+    //     .populate('writer')
+    //     .exec((err, result) => {
+    //         if(err) return res.json({ success:false, err })
+    //         return response.status(200).json({ success:true, result })
+    //     })
+
+    // })
+   });
+   router.get('/api/aboutus',(req,res)=>{
+       authController.GetAllAboutUs(req,res);
+   })
+   router.get('/api/mytasks',(req,res)=>{
+    authController.GetMyAllTasks(req,res);
+})
 router.get('/api/isuserLoggedIn',(req,res)=>{
     authController.isLoggedIn(req,res);
 })

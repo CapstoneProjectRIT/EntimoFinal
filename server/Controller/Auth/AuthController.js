@@ -3,6 +3,7 @@ const formidable=require('formidable')
 const  userModel=require('../../Models/users/userSchema');
 const userSession=require( '../../Models/userSession/userSession');
 const questionModule=require('../../Models/Questions/Question');
+const comment=require('../../Models/Comment/Comment');
 const Bcrypt=require('bcrypt');
 const dotenv=require('dotenv');
 const { findOne } = require('../../Models/users/userSchema');
@@ -15,7 +16,7 @@ class AuthController{
             form.parse(req,async (error,fileds,files)=>{
                 if(error)
                 {
-                    console.log(error);
+                   
                     return res.status(500).json({msg:"Network Error: Faild to register try again later"});
                 }
                 const { fullname, email, password, confirmpassword } = fileds;
@@ -120,6 +121,17 @@ askQustion(req,res)
                 
                 return res.status(400).json({error:"A question has to be asked"});
             }
+            const {Location}=fields
+            if(!Location)
+            {
+                return res.status(400).json({error:"A Location has to provide"});
+            }
+
+            const {Topic}=fields
+            if(!Topic)
+            {
+                return res.status(400).json({error:"Topic needs to be choice"});
+            }
            
             const userSession=req.session.userSession||false;
            
@@ -127,11 +139,14 @@ askQustion(req,res)
             {
                 
                 const owner=userSession.email;
-            
-               
+                const id=userSession.id.toString();
+                
                 const newquestion=new questionModule({
                     owner:owner,
-                    question:question
+                    
+                    question:question,
+                    Location:Location,
+                    Topic:Topic
                 })
               
                 const SavedQuestion=await newquestion.save();
@@ -157,7 +172,38 @@ async GetAllQuestions(request, response) {
         .json({ msg: "Server currently down please try again later" });
     }
   }
-
+  async GetAllAboutUs(request, response) {
+   
+    try {
+      const userSession=request.session.userSession||false;
+        const owner=userSession.email;
+        const userLogin = await userModel.findOne({ email: owner });
+      
+      
+      return response.status(200).json(userLogin);
+        
+    } catch (error) {
+      return response
+        .status(500)
+        .json({ msg: "Server currently down please try again later" });
+    }
+  }
+  async GetMyAllTasks(request, response) {
+   
+    try {
+      const userSession=request.session.userSession||false;
+        const owner=userSession.email;
+        const data = await questionModule.find({ owner: owner });
+      
+      
+      return response.status(200).json(data);
+        
+    } catch (error) {
+      return response
+        .status(500)
+        .json({ msg: "Server currently down please try again later" });
+    }
+  }
   Like(request, response) {
     const form = new formidable.IncomingForm();
 
@@ -205,10 +251,11 @@ async GetAllQuestions(request, response) {
         const question = await questionModule.findOne({ _id: id });
 
         question.downvotes += 1;
-
+//console.log(id);
         const updatedDoc = await questionModule.findOneAndUpdate(
           { _id: id },
           question,
+          
           { new: true }
         );
 
@@ -220,5 +267,97 @@ async GetAllQuestions(request, response) {
         .json({ msg: "Server currently down please try again later" });
     }
   }
+  GetQuestionId(request,response)
+  {
+    const form = new formidable.IncomingForm();
+
+    try {
+      form.parse(request, async (error, fields, files) => {
+        if (error) {
+          return response
+            .status(500)
+            .json({ msg: "Network Error: Failed to like question" });
+        }
+
+        const { id } = fields;
+        console.log(id);
+        
+        return this.id;
+      });
+    }
+        catch (error) {
+      return response
+        .status(500)
+        .json({ msg: "Server currently down please try again later" });
+    }
+  }
+Comment(request,response)
+{
+    const form = new formidable.IncomingForm();
+
+    try {
+      form.parse(request, async (error, fields, files) => {
+        if (error) {
+          return response
+            .status(500)
+            .json({ msg: "Network Error: Failed to like question" });
+        }
+        const userSession=request.session.userSession||false;
+        const owner=userSession.email;
+        const userLogin = await userModel.findOne({ email: owner });
+        
+
+        if(userSession)
+        {
+            
+           
+            
+        
+        
+        const name=userLogin.fullname;
+        const email=userLogin.email;
+        const {comment}=fields;
+        if(!comment)
+        {
+            
+            return response.status(400).json({error:"A comment not post"});
+        }
+      
+    console.log(comment);
+    const authController=new AuthController();
+    const id=authController.GetQuestionId();
+    console.log(id);
+        const updatedDoc = await questionModule.findOneAndUpdate(
+        {_id:id},
+       {
+         $push:{
+           comments:{
+           name:name,
+           comment:comment
+           }
+         }
+       }
+        );
+      //   const newcomment=new Comment({
+      //     owner:owner,
+      //     comment:comment,
+          
+         
+      // })
+    
+     // const SavedQuestion=await newcomment.save();
+        return response.status(200).json({ error: "Comment Posted" });
+        }
+      });
+    } catch (error) {
+      return response
+        .status(500)
+        .json({ msg: "Server currently down please try again later" });
+    }
 }
+
+
+}
+
+
 module.exports=AuthController
